@@ -1,22 +1,53 @@
 --[[
     ╔══════════════════════════════════════════════════════════════╗
-      zBakman HUB | FINAL EDITION
-      Theme: Amethyst (Mor) | Mode: Universal
+      zBakman HUB | ULTIMATE FIXED EDITION
+      Developed by zBakman
     ╚══════════════════════════════════════════════════════════════╝
 ]]
 
+-- KÜTÜPHANELERİ YÜKLE
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
--- ⚠️ AĞAM GIST RAW LINKINI BURAYA YAPISTIR (Tırnakların arasına)
+-- ⚠️ AĞAM, GIST RAW LINKINI BU TIRNAKLARIN ARASINA YAPIŞTIR:
 local DATABASE_URL = "c9c7124e0f1020ce0e677b340b9c9355" 
 
---------------------------------------------------------------------
--- 1. VERİTABANI BAĞLANTISI (Sessiz ve Hızlı)
---------------------------------------------------------------------
+-- =================================================================
+-- 1. ADIM: SOL ÜST MOR LOGO (WATERMARK)
+-- =================================================================
+spawn(function()
+    pcall(function() game.CoreGui:FindFirstChild("zBakmanWM"):Destroy() end)
+    local WM_Gui = Instance.new("ScreenGui")
+    WM_Gui.Name = "zBakmanWM"
+    if gethui then WM_Gui.Parent = gethui() else WM_Gui.Parent = game.CoreGui end
+    
+    local WM_Label = Instance.new("TextLabel")
+    local WM_Stroke = Instance.new("UIStroke")
+    
+    WM_Label.Parent = WM_Gui
+    WM_Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    WM_Label.BackgroundTransparency = 1.000
+    WM_Label.Position = UDim2.new(0, 20, 0, 20)
+    WM_Label.Size = UDim2.new(0, 200, 0, 30)
+    WM_Label.Font = Enum.Font.GothamBlack
+    WM_Label.Text = "zBakmanHub"
+    WM_Label.TextColor3 = Color3.fromRGB(170, 85, 255) -- Mor Renk
+    WM_Label.TextSize = 24.000
+    WM_Label.TextXAlignment = Enum.TextXAlignment.Left
+    
+    WM_Stroke.Parent = WM_Label
+    WM_Stroke.Thickness = 2
+    WM_Stroke.Color = Color3.fromRGB(10, 10, 10)
+end)
+
+-- =================================================================
+-- 2. ADIM: VERİTABANI BAĞLANTISI
+-- =================================================================
+Rayfield:Notify({Title = "Sistem", Content = "Veriler Yükleniyor...", Duration = 2})
+
 local function GetDatabase()
     if DATABASE_URL == "BURAYA_GIST_RAW_LINKINI_YAPISTIR" then return nil end
     local Success, Result = pcall(function()
@@ -38,21 +69,22 @@ local DB = GetDatabase()
 local UserHWID = GetHWID()
 
 if not DB then
-    Rayfield:Notify({Title = "Hata ❌", Content = "Veritabanı Bulunamadı!", Duration = 5})
-    return
+    Rayfield:Notify({Title = "HATA ❌", Content = "Veritabanı Linki Bozuk veya Girilmemiş!", Duration = 5})
+    return -- Script burada durur
 end
 
+-- VIP KONTROLÜ
 local IsVIP = false
 if DB.vips and table.find(DB.vips, UserHWID) then IsVIP = true end
 
---------------------------------------------------------------------
--- 2. MENÜ KURULUMU (Mor Tema & Başlık)
---------------------------------------------------------------------
+-- =================================================================
+-- 3. ADIM: MENÜ TASARIMI (Rayfield)
+-- =================================================================
 local Window = Rayfield:CreateWindow({
    Name = "zBakman Hub | " .. (IsVIP and "Premium 💎" or "Free"),
    LoadingTitle = "zBakman Hub Başlatılıyor...",
-   LoadingSubtitle = "By Orhan & Boss",
-   Theme = "Amethyst", -- 🔥 İŞTE İSTEDİĞİN MOR TEMA
+   LoadingSubtitle = "by Orhan",
+   Theme = "Amethyst", -- Mor Tema
    ConfigurationSaving = {
       Enabled = true,
       FolderName = "zBakmanHub_Final",
@@ -60,49 +92,40 @@ local Window = Rayfield:CreateWindow({
    },
    Discord = {
       Enabled = true,
-      Invite = "seninlinkin", -- Discord davet kodunu buraya yaz (örn: 'gg/kod')
+      Invite = "seninlinkin", 
       RememberJoins = true 
    },
-   KeySystem = not IsVIP,
+   KeySystem = not IsVIP, -- VIP DEĞİLSE KEY İSTE
    KeySettings = {
-      Title = "Giriş Anahtarı (Key)",
-      Subtitle = "Discord'dan Key Alınız",
-      Note = "Destek için Discord'a gel!",
+      Title = "Güvenlik Girişi",
+      Subtitle = "Key Gerekiyor",
+      Note = "Discord'dan alınız: discord.gg/seninlinkin",
       FileName = "zBakmanKey_Final",
-      SaveKey = false, -- Kaydetme kapalı (Güvenlik)
+      SaveKey = false, -- Şifreyi kaydetme (Güvenlik)
       GrabKeyFromSite = false,
       Key = {tostring(DB.current_key)}
    }
 })
 
--- =================================================================
--- 🏠 SEKME 1: ANA SAYFA (Bilgi & Destek)
--- =================================================================
-local HomeTab = Window:CreateTab("Ana Sayfa", 4483345998) -- Ev İkonu
-local HomeSection = HomeTab:CreateSection("Kullanıcı Bilgileri")
-
-HomeTab:CreateLabel("👤 Kullanıcı: " .. LocalPlayer.Name)
-HomeTab:CreateLabel("💎 Üyelik: " .. (IsVIP and "VIP Ayrıcalıklı" or "Normal Üye"))
+-- === SEKME 1: ANA SAYFA ===
+local HomeTab = Window:CreateTab("Ana Sayfa", 4483345998)
+HomeTab:CreateSection("Kullanıcı Bilgisi")
+HomeTab:CreateLabel("👤 İsim: " .. LocalPlayer.Name)
+HomeTab:CreateLabel("💎 Durum: " .. (IsVIP and "VIP ÜYE" or "Normal Üye"))
 HomeTab:CreateLabel("🆔 HWID: " .. UserHWID)
 
-HomeTab:CreateSection("Destek & İletişim")
-HomeTab:CreateParagraph({Title = "Yardım Lazım mı?", Content = "Her türlü sorun, key alma ve VIP satın alımı için Discord sunucumuza gelmeyi unutma!"})
-
 HomeTab:CreateButton({
-   Name = "HWID Kopyala (VIP İçin At)",
+   Name = "HWID Kopyala",
    Callback = function()
       setclipboard(UserHWID)
-      Rayfield:Notify({Title = "Kopyalandı", Content = "HWID panoya alındı!", Duration = 2})
+      Rayfield:Notify({Title = "Başarılı", Content = "HWID Kopyalandı!", Duration = 2})
    end,
 })
 
--- =================================================================
--- 🌍 SEKME 2: EVRENSEL (Uçma, Kaçma, Hız)
--- =================================================================
-local UniversalTab = Window:CreateTab("Evrensel", 4483362458) -- Dünya İkonu
-local MoveSection = UniversalTab:CreateSection("Hareket")
+-- === SEKME 2: EVRENSEL (Universal) ===
+local UniversalTab = Window:CreateTab("Evrensel", 4483362458)
 
--- HIZ AYARI
+-- HIZ
 UniversalTab:CreateSlider({
    Name = "Koşma Hızı (WalkSpeed)",
    Range = {16, 300},
@@ -111,24 +134,24 @@ UniversalTab:CreateSlider({
    CurrentValue = 16,
    Flag = "SpeedSlider", 
    Callback = function(Value)
-      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = Value
-      end
+       if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+           LocalPlayer.Character.Humanoid.WalkSpeed = Value
+       end
    end,
 })
 
--- ZIPLAMA AYARI
+-- ZIPLAMA
 UniversalTab:CreateSlider({
-   Name = "Zıplama Gücü (JumpPower)",
+   Name = "Zıplama (JumpPower)",
    Range = {50, 500},
    Increment = 1,
    Suffix = "Power",
    CurrentValue = 50,
    Flag = "JumpSlider", 
    Callback = function(Value)
-      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.JumpPower = Value
-      end
+       if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+           LocalPlayer.Character.Humanoid.JumpPower = Value
+       end
    end,
 })
 
@@ -149,7 +172,6 @@ UniversalTab:CreateToggle({
            BodyGyro.cframe = LocalPlayer.Character.HumanoidRootPart.CFrame
            BodyVelocity.velocity = Vector3.new(0, 0.1, 0)
            BodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
-           
            spawn(function()
                while FlyToggle do
                    RunService.RenderStepped:Wait()
@@ -158,14 +180,10 @@ UniversalTab:CreateToggle({
                    local Camera = workspace.CurrentCamera
                    BodyGyro.cframe = Camera.CoordinateFrame
                    BodyVelocity.velocity = Vector3.new()
-                   
-                   -- Yön Kontrolleri (W,A,S,D)
-                   -- (Basit mantıkla ileri gider)
                    local moveDir = require(LocalPlayer.PlayerScripts.PlayerModule):GetControls():GetMoveVector()
                    BodyVelocity.velocity = (Camera.CFrame.LookVector * moveDir.Z * -FlySpeed) + (Camera.CFrame.RightVector * moveDir.X * FlySpeed)
                end
-               -- Kapatılınca Temizle
-               LocalPlayer.Character.Humanoid.PlatformStand = false
+               if LocalPlayer.Character then LocalPlayer.Character.Humanoid.PlatformStand = false end
                BodyGyro:Destroy()
                BodyVelocity:Destroy()
            end)
@@ -173,32 +191,11 @@ UniversalTab:CreateToggle({
    end,
 })
 
--- DUVARDAN GEÇME (NOCLIP)
-UniversalTab:CreateToggle({
-   Name = "Duvardan Geç (Noclip)",
-   CurrentValue = false,
-   Flag = "NoclipToggle", 
-   Callback = function(Value)
-       _G.Noclip = Value
-       RunService.Stepped:Connect(function()
-           if _G.Noclip and LocalPlayer.Character then
-               for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                   if part:IsA("BasePart") and part.CanCollide then
-                       part.CanCollide = false
-                   end
-               end
-           end
-       end)
-   end,
-})
-
--- =================================================================
--- 👁️ SEKME 3: GÖRSEL (ESP)
--- =================================================================
-local VisualsTab = Window:CreateTab("Görsel", 4483362458) -- Göz İkonu
+-- === SEKME 3: GÖRSEL (ESP) ===
+local VisualsTab = Window:CreateTab("Görsel", 4483362458)
 
 VisualsTab:CreateButton({
-   Name = "ESP Aç (Kırmızı Kutu)",
+   Name = "ESP Aç (Kırmızı)",
    Callback = function()
       for _, p in pairs(Players:GetPlayers()) do
          if p ~= LocalPlayer and p.Character then
@@ -210,19 +207,17 @@ VisualsTab:CreateButton({
             end
          end
       end
-      Rayfield:Notify({Title = "Başarılı", Content = "ESP Aktif Edildi!", Duration = 2})
+      Rayfield:Notify({Title = "ESP", Content = "Aktif Edildi!", Duration = 2})
    end,
 })
 
--- =================================================================
--- ⚙️ SEKME 4: AYARLAR
--- =================================================================
+-- === SEKME 4: AYARLAR ===
 local SettingsTab = Window:CreateTab("Ayarlar", 4483364237)
-
 SettingsTab:CreateButton({
-   Name = "Menüyü Kapat (Yok Et)",
+   Name = "Arayüzü Kapat (Destroy UI)",
    Callback = function()
       Rayfield:Destroy()
+      pcall(function() game.CoreGui:FindFirstChild("zBakmanWM"):Destroy() end)
    end,
 })
 
