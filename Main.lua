@@ -1,167 +1,186 @@
 --[[
     ╔══════════════════════════════════════════════════════════════╗
-      zBakman HUB | ULTIMATE PREMIUM LOADER
-      Developed by zBakman
+      zBakman HUB | FINAL EDITION
+      Theme: Amethyst (Mor) | Mode: Universal
     ╚══════════════════════════════════════════════════════════════╝
 ]]
 
--- ⚠️ AĞAM BURAYI DOLDURMAYI UNUTMA (Gist Keys.json RAW linki)
-local DATABASE_URL = "c9c7124e0f1020ce0e677b340b9c9355"
-
---------------------------------------------------------------------
--- 1. ADIM: SOL ÜST MOR WATERMARK (İMZA)
---------------------------------------------------------------------
-spawn(function()
-    -- Eğer daha önce çalıştıysa eskisini sil
-    pcall(function() game.CoreGui:FindFirstChild("zBakmanWM"):Destroy() end)
-
-    local WM_Gui = Instance.new("ScreenGui")
-    local WM_Label = Instance.new("TextLabel")
-    local WM_Stroke = Instance.new("UIStroke") -- Yazı kenarlığı (Daha havalı durur)
-
-    WM_Gui.Name = "zBakmanWM"
-    -- CoreGui'ye atıyoruz ki oyunun kendi arayüzünün üstünde dursun (Executor destekliyorsa)
-    if syn and syn.protect_gui then
-        syn.protect_gui(WM_Gui)
-        WM_Gui.Parent = game.CoreGui
-    elseif gethui then
-        WM_Gui.Parent = gethui()
-    else
-        WM_Gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-    end
-    
-    WM_Label.Parent = WM_Gui
-    WM_Label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    WM_Label.BackgroundTransparency = 1.000
-    WM_Label.Position = UDim2.new(0, 25, 0, 25) -- Sol üstten biraz boşluk
-    WM_Label.Size = UDim2.new(0, 200, 0, 30)
-    WM_Label.Font = Enum.Font.GothamBlack -- Kalın, premium font
-    WM_Label.Text = "zBakmanHub"
-    WM_Label.TextColor3 = Color3.fromRGB(170, 85, 255) -- 🔥 NEON MOR RENK
-    WM_Label.TextSize = 26.000
-    WM_Label.TextXAlignment = Enum.TextXAlignment.Left
-
-    WM_Stroke.Parent = WM_Label
-    WM_Stroke.Thickness = 2
-    WM_Stroke.Color = Color3.fromRGB(20, 20, 20) -- Siyah kenarlık
-end)
-
---------------------------------------------------------------------
--- 2. ADIM: VERİTABANI & GÜVENLİK KONTROLÜ
---------------------------------------------------------------------
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
-Rayfield:Notify({Title = "System", Content = "Connecting to zBakman Servers...", Duration = 3})
+-- ⚠️ AĞAM GIST RAW LINKINI BURAYA YAPISTIR (Tırnakların arasına)
+local DATABASE_URL = "c9c7124e0f1020ce0e677b340b9c9355" 
 
+--------------------------------------------------------------------
+-- 1. VERİTABANI BAĞLANTISI (Sessiz ve Hızlı)
+--------------------------------------------------------------------
 local function GetDatabase()
-    if DATABASE_URL == "BURAYA_GIST_RAW_LINKINI_YAPISTIR" then return nil end -- Link girilmemişse
+    if DATABASE_URL == "BURAYA_GIST_RAW_LINKINI_YAPISTIR" then return nil end
     local Success, Result = pcall(function()
-        -- Cache bypass için zaman damgası ekliyoruz
         return HttpService:JSONDecode(game:HttpGet(DATABASE_URL .. "?t=" .. tostring(os.time())))
     end)
     if Success then return Result else return nil end
 end
 
 local function GetHWID()
-    local HWID = "UNKNOWN"
-    -- Farklı executorlar için HWID alma yöntemleri
-    if gethwid then HWID = gethwid()
+    if gethwid then return gethwid()
     elseif request then 
-        pcall(function() HWID = game:GetService("RbxAnalyticsService"):GetClientId() end)
+        local s, r = pcall(function() return game:GetService("RbxAnalyticsService"):GetClientId() end)
+        if s then return r end
     end
-    return HWID
+    return "UNKNOWN"
 end
 
-local UserHWID = GetHWID()
 local DB = GetDatabase()
+local UserHWID = GetHWID()
 
 if not DB then
-    Rayfield:Notify({Title = "Error ❌", Content = "Failed to connect! Check DATABASE_URL in script.", Duration = 10})
-    warn("[zBakmanHub] Gist RAW Linkini girmeyi unuttun ağam!")
+    Rayfield:Notify({Title = "Hata ❌", Content = "Veritabanı Bulunamadı!", Duration = 5})
     return
 end
 
 local IsVIP = false
-if table.find(DB.vips, UserHWID) then IsVIP = true end
-
-if IsVIP then
-    Rayfield:Notify({Title = "Welcome Boss 💎", Content = "VIP Access Granted successfully.", Duration = 5})
-else
-    Rayfield:Notify({Title = "Welcome User", Content = "Key Required for access.", Duration = 5})
-end
+if DB.vips and table.find(DB.vips, UserHWID) then IsVIP = true end
 
 --------------------------------------------------------------------
--- 3. ADIM: PREMIUM UI TASARIMI
+-- 2. MENÜ KURULUMU (Mor Tema & Başlık)
 --------------------------------------------------------------------
 local Window = Rayfield:CreateWindow({
-   Name = "zBakman Hub | Ultimate Solution",
-   LoadingTitle = "zBakman Hub Loading...",
-   LoadingSubtitle = "Powered by OrhanAI",
+   Name = "zBakman Hub | " .. (IsVIP and "Premium 💎" or "Free"),
+   LoadingTitle = "zBakman Hub Başlatılıyor...",
+   LoadingSubtitle = "By Orhan & Boss",
+   Theme = "Amethyst", -- 🔥 İŞTE İSTEDİĞİN MOR TEMA
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = "zBakmanHubConfig", -- Config klasör adı
+      FolderName = "zBakmanHub_Final",
       FileName = "Settings"
    },
    Discord = {
-      Enabled = false, -- Discord butonu (istersen açabiliriz)
-      Invite = "seninlinkin", 
+      Enabled = true,
+      Invite = "seninlinkin", -- Discord davet kodunu buraya yaz (örn: 'gg/kod')
       RememberJoins = true 
    },
-   KeySystem = not IsVIP, -- VIP değilse Key sor
+   KeySystem = not IsVIP,
    KeySettings = {
-      Title = "Authentication Gateway",
-      Subtitle = "Daily Key Required",
-      Note = "Get your key from our Discord server (#access-control).",
-      FileName = "zBakmanKey",
-      SaveKey = true,
+      Title = "Giriş Anahtarı (Key)",
+      Subtitle = "Discord'dan Key Alınız",
+      Note = "Destek için Discord'a gel!",
+      FileName = "zBakmanKey_Final",
+      SaveKey = false, -- Kaydetme kapalı (Güvenlik)
       GrabKeyFromSite = false,
-      Key = {DB.current_key} -- Gist'ten gelen anlık şifre
+      Key = {tostring(DB.current_key)}
    }
 })
 
--- === SEKME 1: MAIN (Ana Özellikler) ===
-local MainTab = Window:CreateTab("Main", 4483345998) -- Ev ikonu
-local MainSection = MainTab:CreateSection("Character Modifications")
+-- =================================================================
+-- 🏠 SEKME 1: ANA SAYFA (Bilgi & Destek)
+-- =================================================================
+local HomeTab = Window:CreateTab("Ana Sayfa", 4483345998) -- Ev İkonu
+local HomeSection = HomeTab:CreateSection("Kullanıcı Bilgileri")
 
-MainTab:CreateSlider({
-   Name = "Walk Speed Multiplier",
-   Range = {16, 500},
-   Increment = 1,
-   Suffix = "Studs",
-   CurrentValue = 16,
-   Flag = "WS_Slider", 
-   Callback = function(Value)
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.WalkSpeed = Value
-        end
+HomeTab:CreateLabel("👤 Kullanıcı: " .. LocalPlayer.Name)
+HomeTab:CreateLabel("💎 Üyelik: " .. (IsVIP and "VIP Ayrıcalıklı" or "Normal Üye"))
+HomeTab:CreateLabel("🆔 HWID: " .. UserHWID)
+
+HomeTab:CreateSection("Destek & İletişim")
+HomeTab:CreateParagraph({Title = "Yardım Lazım mı?", Content = "Her türlü sorun, key alma ve VIP satın alımı için Discord sunucumuza gelmeyi unutma!"})
+
+HomeTab:CreateButton({
+   Name = "HWID Kopyala (VIP İçin At)",
+   Callback = function()
+      setclipboard(UserHWID)
+      Rayfield:Notify({Title = "Kopyalandı", Content = "HWID panoya alındı!", Duration = 2})
    end,
 })
 
-MainTab:CreateSlider({
-   Name = "Jump Power Multiplier",
-   Range = {50, 1000},
+-- =================================================================
+-- 🌍 SEKME 2: EVRENSEL (Uçma, Kaçma, Hız)
+-- =================================================================
+local UniversalTab = Window:CreateTab("Evrensel", 4483362458) -- Dünya İkonu
+local MoveSection = UniversalTab:CreateSection("Hareket")
+
+-- HIZ AYARI
+UniversalTab:CreateSlider({
+   Name = "Koşma Hızı (WalkSpeed)",
+   Range = {16, 300},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Flag = "SpeedSlider", 
+   Callback = function(Value)
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = Value
+      end
+   end,
+})
+
+-- ZIPLAMA AYARI
+UniversalTab:CreateSlider({
+   Name = "Zıplama Gücü (JumpPower)",
+   Range = {50, 500},
    Increment = 1,
    Suffix = "Power",
    CurrentValue = 50,
-   Flag = "JP_Slider", 
+   Flag = "JumpSlider", 
    Callback = function(Value)
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.JumpPower = Value
-        end
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.JumpPower = Value
+      end
    end,
 })
 
-MainTab:CreateToggle({
-   Name = "Noclip (Wall Phase)",
+-- UÇMA (FLY)
+local FlyToggle = false
+local FlySpeed = 50
+UniversalTab:CreateToggle({
+   Name = "Uçma Modu (Fly)",
+   CurrentValue = false,
+   Flag = "FlyToggle", 
+   Callback = function(Value)
+       FlyToggle = Value
+       if FlyToggle then
+           local BodyGyro = Instance.new("BodyGyro", LocalPlayer.Character.HumanoidRootPart)
+           local BodyVelocity = Instance.new("BodyVelocity", LocalPlayer.Character.HumanoidRootPart)
+           BodyGyro.P = 9e4
+           BodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+           BodyGyro.cframe = LocalPlayer.Character.HumanoidRootPart.CFrame
+           BodyVelocity.velocity = Vector3.new(0, 0.1, 0)
+           BodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
+           
+           spawn(function()
+               while FlyToggle do
+                   RunService.RenderStepped:Wait()
+                   if not LocalPlayer.Character then break end
+                   LocalPlayer.Character.Humanoid.PlatformStand = true
+                   local Camera = workspace.CurrentCamera
+                   BodyGyro.cframe = Camera.CoordinateFrame
+                   BodyVelocity.velocity = Vector3.new()
+                   
+                   -- Yön Kontrolleri (W,A,S,D)
+                   -- (Basit mantıkla ileri gider)
+                   local moveDir = require(LocalPlayer.PlayerScripts.PlayerModule):GetControls():GetMoveVector()
+                   BodyVelocity.velocity = (Camera.CFrame.LookVector * moveDir.Z * -FlySpeed) + (Camera.CFrame.RightVector * moveDir.X * FlySpeed)
+               end
+               -- Kapatılınca Temizle
+               LocalPlayer.Character.Humanoid.PlatformStand = false
+               BodyGyro:Destroy()
+               BodyVelocity:Destroy()
+           end)
+       end
+   end,
+})
+
+-- DUVARDAN GEÇME (NOCLIP)
+UniversalTab:CreateToggle({
+   Name = "Duvardan Geç (Noclip)",
    CurrentValue = false,
    Flag = "NoclipToggle", 
    Callback = function(Value)
-       -- Basit Noclip mantığı (Geliştirilebilir)
        _G.Noclip = Value
-       game:GetService("RunService").Stepped:Connect(function()
+       RunService.Stepped:Connect(function()
            if _G.Noclip and LocalPlayer.Character then
                for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
                    if part:IsA("BasePart") and part.CanCollide then
@@ -173,47 +192,38 @@ MainTab:CreateToggle({
    end,
 })
 
--- === SEKME 2: VISUALS (Görseller - ESP vb.) ===
-local VisualsTab = Window:CreateTab("Visuals", 4483362458) -- Göz ikonu
-local ESPSection = VisualsTab:CreateSection("ESP Settings")
+-- =================================================================
+-- 👁️ SEKME 3: GÖRSEL (ESP)
+-- =================================================================
+local VisualsTab = Window:CreateTab("Görsel", 4483362458) -- Göz İkonu
 
 VisualsTab:CreateButton({
-   Name = "Enable Player ESP (Red Box)",
+   Name = "ESP Aç (Kırmızı Kutu)",
    Callback = function()
       for _, p in pairs(Players:GetPlayers()) do
-         if p ~= LocalPlayer and p.Character and not p.Character:FindFirstChild("zBakmanHighlight") then
-            local h = Instance.new("Highlight", p.Character)
-            h.Name = "zBakmanHighlight"
-            h.FillColor = Color3.fromRGB(255, 0, 0)
-            h.OutlineColor = Color3.fromRGB(170, 0, 255) -- Mor kenarlık
+         if p ~= LocalPlayer and p.Character then
+            if not p.Character:FindFirstChild("zBakmanESP") then
+                local h = Instance.new("Highlight", p.Character)
+                h.Name = "zBakmanESP"
+                h.FillColor = Color3.fromRGB(255, 0, 0)
+                h.OutlineColor = Color3.fromRGB(170, 0, 255)
+            end
          end
       end
-      Rayfield:Notify({Title = "Success", Content = "ESP Loaded.", Duration = 3})
+      Rayfield:Notify({Title = "Başarılı", Content = "ESP Aktif Edildi!", Duration = 2})
    end,
 })
 
--- === SEKME 3: MISC (Diğer) ===
-local MiscTab = Window:CreateTab("Misc", 4483364237) -- Ayar ikonu
-local InfoSection = MiscTab:CreateSection("User Information")
+-- =================================================================
+-- ⚙️ SEKME 4: AYARLAR
+-- =================================================================
+local SettingsTab = Window:CreateTab("Ayarlar", 4483364237)
 
-MiscTab:CreateLabel("Your HWID: " .. UserHWID)
-MiscTab:CreateLabel("Status: " .. (IsVIP and "💎 VIP Active" or "👤 Free User"))
-
-MiscTab:CreateButton({
-   Name = "Copy HWID to Clipboard",
+SettingsTab:CreateButton({
+   Name = "Menüyü Kapat (Yok Et)",
    Callback = function()
-      setclipboard(UserHWID)
-      Rayfield:Notify({Title = "Copied!", Content = "Send this to admin for VIP.", Duration = 3})
+      Rayfield:Destroy()
    end,
 })
-
-MiscTab:CreateSection("UI Settings")
-MiscTab:CreateButton({
-    Name = "Destroy UI (Panic Button)",
-    Callback = function()
-        Rayfield:Destroy()
-        pcall(function() game.CoreGui:FindFirstChild("zBakmanWM"):Destroy() end) -- Watermark'ı da sil
-    end,
- })
 
 Rayfield:LoadConfiguration()
