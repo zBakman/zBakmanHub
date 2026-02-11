@@ -1,7 +1,7 @@
 --[[
     ╔══════════════════════════════════════════════════════════════╗
       zBakman HUB | ULTIMATE PREMIUM LOADER
-      Developed by Orhan for the Boss
+      Developed by zBakman
     ╚══════════════════════════════════════════════════════════════╝
 ]]
 
